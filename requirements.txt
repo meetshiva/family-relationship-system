@@ -7,6 +7,7 @@ google-auth-oauthlib
 google-auth-httplib2
 google-api-python-client
 streamlit-option-menu
+streamlit-agraph
 networkx
 pyvis
 openpyxl
