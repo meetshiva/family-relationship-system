@@ -13,6 +13,7 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials as SACredentials
 from google.oauth2.credentials import Credentials as OAuthCredentials
 from google_auth_oauthlib.flow import (InstalledAppFlow)
+from google.oauth2 import service_account
 import os
 import requests
 
@@ -890,36 +891,49 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.file"
 ]
 
+#def get_drive_service():
+#
+#    creds = None
+#
+#    if os.path.exists("token.json"):
+#
+#        creds = OAuthCredentials.from_authorized_user_file(
+#            "token.json",
+#            SCOPES
+#        )
+#
+#    if not creds or not creds.valid:
+#
+#        flow = InstalledAppFlow.from_client_secrets_file(
+#            "oauth_client.json",
+#            SCOPES
+#        )
+#
+#        creds = flow.run_local_server(
+#            port=0
+#        )
+#
+#        with open(
+#            "token.json",
+#            "w"
+#        ) as token:
+#
+#            token.write(
+#                creds.to_json()
+#            )
+#
+#    return build(
+#        "drive",
+#        "v3",
+#        credentials=creds
+#    )
+
 def get_drive_service():
 
-    creds = None
-
-    if os.path.exists("token.json"):
-
-        creds = OAuthCredentials.from_authorized_user_file(
-            "token.json",
-            SCOPES
-        )
-
-    if not creds or not creds.valid:
-
-        flow = InstalledAppFlow.from_client_secrets_file(
-            "oauth_client.json",
-            SCOPES
-        )
-
-        creds = flow.run_local_server(
-            port=0
-        )
-
-        with open(
-            "token.json",
-            "w"
-        ) as token:
-
-            token.write(
-                creds.to_json()
-            )
+    creds = service_account.Credentials.from_service_account_info(
+        dict(st.secrets["gcp_service_account"]),
+        scopes=SCOPES
+    )
 
     return build(
         "drive",
