@@ -9,6 +9,7 @@ token.json
 client_secret*.json
 
 Photos/
+Other_Files/
 
 !assets/
 !assets/Main_Page_Logo.jpg
