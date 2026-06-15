@@ -185,10 +185,10 @@ def connect(sheet):
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
-    creds = SACredentials.from_service_account_file(
-        "credentials.json",
-        scopes=SCOPES
-    )
+    #creds = SACredentials.from_service_account_file("credentials.json",scopes=SCOPES)
+    creds = SACredentials.from_service_account_info(
+    dict(st.secrets["gcp_service_account"]),
+    scopes=SCOPES)
     
     #st.write("Service Account:",creds.service_account_email)
     
