@@ -10,11 +10,8 @@ client_secret*.json
 
 Photos/
 
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.webp
+!assets/
+!assets/Main_Page_Logo.jpg
 
 *.csv
 *.sql

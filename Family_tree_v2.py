@@ -71,7 +71,8 @@ c1, c2 = st.columns([1,11])
 
 with c1:
 
-    st.image(r"C:\Shiva_Folder\3_Documents\1_Education\Python\GPT_Family_Rship_Project\Photos\Main_Page_Logo.jpg",width=80)
+    #st.image(r"C:\Shiva_Folder\3_Documents\1_Education\Python\GPT_Family_Rship_Project\Photos\Main_Page_Logo.jpg",width=80)
+    st.image("assets/Main_Page_Logo.jpg",width=80)
 
 with c2:
 
