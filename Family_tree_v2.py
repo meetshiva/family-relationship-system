@@ -933,12 +933,29 @@ def get_drive_service_local():
         credentials=creds
     )
 
-def get_drive_service():
+def get_drive_service_old():
 
     
     creds = service_account.Credentials.from_service_account_info(
         dict(st.secrets["gcp_service_account"]),
         scopes=SCOPES)
+
+    return build(
+        "drive",
+        "v3",
+        credentials=creds
+    )
+
+def get_drive_service():
+
+    creds = OAuthCredentials(
+        token=None,
+        refresh_token=st.secrets["gdrive_oauth"]["refresh_token"],
+        token_uri=st.secrets["gdrive_oauth"]["token_uri"],
+        client_id=st.secrets["gdrive_oauth"]["client_id"],
+        client_secret=st.secrets["gdrive_oauth"]["client_secret"],
+        scopes=SCOPES
+    )
 
     return build(
         "drive",
