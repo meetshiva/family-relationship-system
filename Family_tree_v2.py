@@ -491,6 +491,7 @@ def show_family_tree():
     edges = []
 
     added_nodes = set()
+    id_map = {}
 
     # ---------- FIND ROOT MEMBERS ----------
     root_ids = set(
@@ -507,8 +508,14 @@ def show_family_tree():
     # ---------- CREATE NODES ----------
     for _, row in master_df.iterrows():
 
+        #aadhaar = str(row["AADHAAR_NUM"])
+        #name = str(row["MEMBER_NAME"])
         aadhaar = str(row["AADHAAR_NUM"])
         name = str(row["MEMBER_NAME"])
+
+        node_id = f"N{len(id_map)+1}"
+
+        id_map[aadhaar] = node_id
 
         gender = str(
             row.get("GENDER", "")
@@ -561,10 +568,12 @@ def show_family_tree():
 
                 Node(
 
-                    id=aadhaar,
+                    id=node_id,
 
                     label=name,
 
+                    title=name,
+                    
                     size=size,
 
                     color=color,
@@ -603,9 +612,9 @@ def show_family_tree():
 
                 Edge(
 
-                    source=parent,
+                    source=id_map.get(parent),
 
-                    target=child,
+                    target=id_map.get(child),
 
                     label=rel,
 
