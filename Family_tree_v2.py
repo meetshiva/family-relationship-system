@@ -24,6 +24,7 @@ show_greetings_flag = True
 send_email_flag = False
 perfomance_needed = False
 PHOTO_FOLDER_ID = "17qtspO2EVTvB1C7oRQc3-TXAbbjXggoi"
+local_dev = False
 
 st.set_page_config(page_title="Family Relationships System",layout="wide")
 
@@ -72,8 +73,10 @@ c1, c2 = st.columns([1,11])
 
 with c1:
 
-    #st.image(r"C:\Shiva_Folder\3_Documents\1_Education\Python\GPT_Family_Rship_Project\Photos\Main_Page_Logo.jpg",width=80)
-    st.image("assets/Main_Page_Logo.jpg",width=80)
+    if local_dev:
+        st.image(r"C:\Shiva_Folder\3_Documents\1_Education\Python\GPT_Family_Rship_Project\Photos\Main_Page_Logo.jpg",width=80)
+    else:
+        st.image("assets/Main_Page_Logo.jpg",width=80)
 
 with c2:
 
@@ -186,10 +189,12 @@ def connect(sheet):
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
-    #creds = SACredentials.from_service_account_file("credentials.json",scopes=SCOPES)
-    creds = SACredentials.from_service_account_info(
-    dict(st.secrets["gcp_service_account"]),
-    scopes=SCOPES)
+    if local_dev:
+        creds = SACredentials.from_service_account_file("credentials.json",scopes=SCOPES)
+    else:
+        creds = SACredentials.from_service_account_info(
+        dict(st.secrets["gcp_service_account"]),
+        scopes=SCOPES)
     
     #st.write("Service Account:",creds.service_account_email)
     
@@ -891,49 +896,49 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.file"
 ]
 
-#def get_drive_service():
-#
-#    creds = None
-#
-#    if os.path.exists("token.json"):
-#
-#        creds = OAuthCredentials.from_authorized_user_file(
-#            "token.json",
-#            SCOPES
-#        )
-#
-#    if not creds or not creds.valid:
-#
-#        flow = InstalledAppFlow.from_client_secrets_file(
-#            "oauth_client.json",
-#            SCOPES
-#        )
-#
-#        creds = flow.run_local_server(
-#            port=0
-#        )
-#
-#        with open(
-#            "token.json",
-#            "w"
-#        ) as token:
-#
-#            token.write(
-#                creds.to_json()
-#            )
-#
-#    return build(
-#        "drive",
-#        "v3",
-#        credentials=creds
-#    )
+def get_drive_service_local():
+
+    creds = None
+
+    if os.path.exists("token.json"):
+
+        creds = OAuthCredentials.from_authorized_user_file(
+            "token.json",
+            SCOPES
+        )
+
+    if not creds or not creds.valid:
+
+        flow = InstalledAppFlow.from_client_secrets_file(
+            "oauth_client.json",
+            SCOPES
+        )
+
+        creds = flow.run_local_server(
+            port=0
+        )
+
+        with open(
+            "token.json",
+            "w"
+        ) as token:
+
+            token.write(
+                creds.to_json()
+            )
+
+    return build(
+        "drive",
+        "v3",
+        credentials=creds
+    )
 
 def get_drive_service():
 
+    
     creds = service_account.Credentials.from_service_account_info(
         dict(st.secrets["gcp_service_account"]),
-        scopes=SCOPES
-    )
+        scopes=SCOPES)
 
     return build(
         "drive",
@@ -947,7 +952,10 @@ def upload_photo_to_drive(
     name
 ):
 
-    drive_service = get_drive_service()
+    if local_dev:
+        drive_service = get_drive_service_local()
+    else:
+        drive_service = get_drive_service()
 
     safe_name = (
     str(name)
@@ -977,11 +985,16 @@ def upload_photo_to_drive(
         resumable=True
     )
 
-    file = drive_service.files().create(
-        body=file_metadata,
-        media_body=media,
-        fields="id"
-    ).execute()
+    try:
+        file = drive_service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields="id"
+        ).execute()
+
+    except Exception as e:
+        st.error(str(e))
+        raise
 
     file_id = file.get("id")
 
