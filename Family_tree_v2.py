@@ -1643,7 +1643,7 @@ if py_patterns:
         with c2:
 
             if st.button(
-                "❌ Close"
+                "❌ Close",key="close_family_tree"
             ):
 
                 st.session_state.show_graph = False
@@ -1661,7 +1661,7 @@ if py_patterns:
         with c2:
 
             if st.button(
-                "❌ Close"
+                "❌ Close",key="close_details"
             ):
 
                 st.session_state.show_details = False
