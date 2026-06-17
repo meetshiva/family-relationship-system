@@ -343,13 +343,19 @@ def show_details_grid(source, target):
 
         source_photo = src.get("PHOTO", "")
 
-        if source_photo:
+        if source_photo and \
+            str(source_photo).strip():
 
             st.write("Source Photo URL:", source_photo)
             st.image(
                 get_drive_image_url(source_photo),
                 width=200
             )
+        else:
+            st.info(
+                "Photo not uploaded"
+            )
+        
 
     with c2:
 
@@ -357,12 +363,17 @@ def show_details_grid(source, target):
 
         target_photo = tgt.get("PHOTO", "")
 
-        if target_photo:
+        if target_photo and \
+            str(target_photo).strip():
 
             st.write("Target Photo URL:", target_photo)
             st.image(
                 get_drive_image_url(target_photo),
                 width=200
+            )
+        else:
+            st.info(
+                "Photo not uploaded"
             )
 
 
@@ -1303,7 +1314,7 @@ if py_patterns:
         
         # SON CASE
         if chain == "S(M).S(M)":
-            return "Father" if is_source_younger(source, target) else "Son"
+            return "Son" if is_source_younger(source, target) else "Father"
             
             # ---------- S(M).S(M).S(M) ----------
         if chain == "S(M).S(M).S(M)":
@@ -1327,7 +1338,7 @@ if py_patterns:
 
         # DAUGHTER CASE
         if chain in ["D(F).D(F)", "D(F).W(F)", "D(F).R(F)"]:
-            return "Mother" if is_source_younger(source, target) else "Daughter"
+            return "Daughter" if is_source_younger(source, target) else "Mother"
 
 
         # ---------- EXISTING LOGIC (UNCHANGED) ----------         
@@ -2102,11 +2113,11 @@ if py_patterns:
             f1, f2 = st.columns(2)
 
             father_aadhaar = f1.text_input(
-                "Father Aadhaar"
+                "Enter Father Aadhaar:"
             )
 
             mother_aadhaar = f2.text_input(
-                "Mother Aadhaar"
+                "Enter Mother Aadhaar:"
             )
 
             update_couple = st.form_submit_button("Update Couple Identification Number")
@@ -2194,12 +2205,12 @@ if py_patterns:
         st.subheader("Step 1: Validate Member")
 
         upd_aadhaar = st.text_input(
-            "Enter Aadhaar",
+            "Enter Aadhaar:",
             key="upd_aadhaar"
         )
 
         upd_passcode = st.text_input(
-            "Enter Passcode",
+            "Enter Passcode:",
             type="password",
             key="upd_passcode"
         )
@@ -2259,52 +2270,52 @@ if py_patterns:
             with st.form("update_member_form"):
 
                 ph_no = st.text_input(
-                    "Mobile",
+                    "Mobile:",
                     value=st.session_state.upd_ph_no
                 )
 
                 status = st.selectbox(
-                    "Status",
+                    "Status:",
                     ["Alive","Expired"],
                     index=0 if st.session_state.upd_status=="Alive" else 1
                 )
                 marital_ui = st.selectbox(
-                    "*Marital Status [M-Married/S-Single/D-Divorced]",
+                    "*Marital Status [M-Married/S-Single/D-Divorced]:",
                     ["","M","S","D"]
                 )
 
                 mrg_anniv_date = st.text_input(
-                    "Marriage Anniversary Date (DD-MON-YYYY)",
+                    "*Marriage Anniversary Date (DD-MON-YYYY):",
                     value=str(st.session_state.upd_anniv)
                 )
 
                 email_id = st.text_input(
-                    "Email ID",
+                    "Email ID:",
                     value=str(st.session_state.upd_email)
                 )
 
                 gothram = st.text_input(
-                    "Gothram",
+                    "Gothram:",
                     value=str(st.session_state.upd_gothram)
                 )
 
                 occupation = st.text_input(
-                    "Occupation",
+                    "Occupation:",
                     value=str(st.session_state.upd_occ)
                 )
 
                 paddr = st.text_area(
-                    "Present Address",
+                    "Present Address:",
                     value=str(st.session_state.upd_paddr)
                 )
 
                 perm_addr = st.text_area(
-                    "Permanent Address",
+                    "Permanent Address:",
                     value=str(st.session_state.upd_perm)
                 )
 
                 comments = st.text_area(
-                    "Comments",
+                    "Comments:",
                     value=str(st.session_state.upd_comments)
                 )
 
@@ -2786,9 +2797,10 @@ if py_patterns:
                             value_input_option="USER_ENTERED"
                         )
                     
-                    st.success(
-                        f"{count} invitation(s) sent successfully"
-                    )
+                    if count>0:
+                        st.success(
+                            f"{count} invitation(s) sent successfully"
+                        )
 
                 # =====================================
                 # SEND TO SPECIFIC MEMBERS
@@ -2861,9 +2873,10 @@ if py_patterns:
                             value_input_option="USER_ENTERED"
                         )
                     
-                    st.success(
-                        f"{sent_count} invitation(s) sent successfully"
-                    )                    
+                    if sent_count>0:
+                        st.success(
+                            f"{sent_count} invitation(s) sent successfully"
+                        )                    
 if gs_patterns:
     # ---------- LOAD ----------
     @st.cache_data
