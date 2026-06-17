@@ -2404,12 +2404,12 @@ if py_patterns:
         st.subheader("Step 1: Validate Organizer")
 
         org_aadhaar = st.text_input(
-            "Enter Aadhaar",
+            "Enter Aadhaar:",
             key="org_aadhaar"
         )
 
         org_passcode = st.text_input(
-            "Enter Passcode",
+            "Enter Passcode:",
             type="password",
             key="org_passcode"
         )
