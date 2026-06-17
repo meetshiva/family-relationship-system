@@ -3727,3 +3727,25 @@ if gs_patterns:
             st.cache_data.clear()
             st.session_state.save_msg="COUPLE_IDENTIFICATION_NUM updated successfully, now you can add your details"
             st.rerun()
+
+st.markdown("---")
+
+st.markdown(
+    """
+    <div style="
+        text-align:center;
+        color:gray;
+        font-size:14px;
+        padding-top:10px;
+    ">
+        Designed, Developed and Maintained by
+        <b>SIVANAGARAJU GUMMADILLI</b>
+        <br>
+        For any queries please reach out to 
+        <a href="mailto:support@frships.com">
+            support@frships.com
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
