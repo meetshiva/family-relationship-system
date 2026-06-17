@@ -25,7 +25,7 @@ send_email_flag = False
 perfomance_needed = False
 PHOTO_FOLDER_ID = "17qtspO2EVTvB1C7oRQc3-TXAbbjXggoi"
 EVENT_INVITATION_FOLDER_ID = "1WqXhqehrSXsxXTuQbGKQqJeePyWFJCZZ"
-local_dev = True
+local_dev = False
 
 st.set_page_config(page_title="Family Relationships System",layout="wide")
 
