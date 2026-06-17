@@ -24,7 +24,8 @@ show_greetings_flag = True
 send_email_flag = False
 perfomance_needed = False
 PHOTO_FOLDER_ID = "17qtspO2EVTvB1C7oRQc3-TXAbbjXggoi"
-local_dev = False
+EVENT_INVITATION_FOLDER_ID = "1WqXhqehrSXsxXTuQbGKQqJeePyWFJCZZ"
+local_dev = True
 
 st.set_page_config(page_title="Family Relationships System",layout="wide")
 
@@ -1021,6 +1022,84 @@ def upload_photo_to_drive(
     except Exception as e:
         st.error(str(e))
         raise
+
+    file_id = file.get("id")
+
+    drive_service.permissions().create(
+        fileId=file_id,
+        body={
+            "type": "anyone",
+            "role": "reader"
+        }
+    ).execute()
+
+    return (
+        f"https://drive.google.com/file/d/"
+        f"{file_id}/view"
+    )
+
+def upload_event_invitation_to_drive(
+    uploaded_file,
+    aadhaar,
+    event_name,
+    event_date
+):
+
+    if local_dev:
+        drive_service = get_drive_service_local()
+    else:
+        drive_service = get_drive_service()
+
+    safe_event_name = (
+        str(event_name)
+        .strip()
+        .replace(" ", "_")
+        .replace("/", "_")
+    )
+
+    event_date_str = (
+        event_date.strftime("%d-%b-%Y")
+    )
+
+    extension = (
+        uploaded_file.name
+        .split(".")[-1]
+    )
+
+    file_name = (
+        f"{aadhaar}_"
+        f"{safe_event_name}_"
+        f"{event_date_str}."
+        f"{extension}"
+    )
+
+    temp_file = file_name
+
+    with open(temp_file, "wb") as f:
+
+        f.write(
+            uploaded_file.getbuffer()
+        )
+
+    file_metadata = {
+
+        "name": file_name,
+
+        "parents": [
+            EVENT_INVITATION_FOLDER_ID
+        ]
+    }
+
+    media = MediaFileUpload(
+        temp_file,
+        resumable=True
+    )
+
+    file = drive_service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields="id"
+    ).execute()
 
     file_id = file.get("id")
 
@@ -2127,8 +2206,8 @@ if py_patterns:
 
         if st.button("Validate"):
 
-            st.write("Entered Aadhaar:", repr(upd_aadhaar))
-            st.write("Entered Passcode:", repr(upd_passcode))
+            #st.write("Entered Aadhaar:", repr(upd_aadhaar))
+            #st.write("Entered Passcode:", repr(upd_passcode))
 
             #st.write(master_df[["AADHAAR_NUM", "PASSCODE", "MEMBER_NAME"]].head(64))
             
@@ -2172,7 +2251,7 @@ if py_patterns:
                 st.session_state.upd_comments = row.get("COMMENTS","")
 
                 st.success(
-                    f"Validated with {row['MEMBER_NAME']}"
+                    f"Good day! {row['MEMBER_NAME']}"
                 )
     
         if st.session_state.get("update_verified", False):
@@ -2377,7 +2456,7 @@ if py_patterns:
                 )
 
                 st.success(
-                    f"Validated with {row['MEMBER_NAME']}"
+                    f"Good day! {row['MEMBER_NAME']}"
                 )
 
         # =================================================
@@ -2389,25 +2468,29 @@ if py_patterns:
             False
         ):
 
-            st.info(
-                f"Organizer : "
-                f"{st.session_state.org_name}"
-            )
+            #st.info(f"Organizer : "f"{st.session_state.org_name}")
 
             with st.form(
                 "Invitation_form"
             ):
 
                 event_name = st.text_input(
-                    "Enter Event Name"
+                    "Enter Event Name:"
                 )
 
                 event_desc = st.text_area(
-                    "Enter Description of the Event"
+                    "Enter Description of the Event:"
                 )
+                
+                event_date = st.date_input(
+                    "Event Date:"
+                )
+                
+                #st.caption(f"Selected Event Date: {event_date.strftime('%d-%b-%Y')}")
+                #st.text_input("Selected Event Date",value=event_date.strftime("%d-%b-%Y"),disabled=True)
 
                 event_photo = st.file_uploader(
-                    "Upload Photo / Invitation",
+                    "Upload Photo / Invitation:",
                     type=[
                         "jpg",
                         "jpeg",
@@ -2418,7 +2501,7 @@ if py_patterns:
 
                 recipient_option = st.radio(
 
-                    "Invitation Type",
+                    "Invitation Type:",
 
                     [
                         "Send to all members registered in the system",
@@ -2519,7 +2602,7 @@ if py_patterns:
                     )
 
                     validation_failed = True
-
+                
                 if validation_failed:
 
                     st.stop()
@@ -2531,6 +2614,7 @@ if py_patterns:
                 attachment_path = None
 
                 # User uploaded invitation
+                attachment_url = ""
                 if event_photo:
 
                     attachment_path = event_photo.name
@@ -2572,6 +2656,32 @@ if py_patterns:
 
                         f.write(r.content)
 
+                event_sheet = connect(
+                    "EVENT_DETAILS"
+                )
+
+                created_ts = datetime.now().strftime(
+                    "%d-%b-%Y %H:%M:%S"
+                )
+
+                total_recipients = (
+                    len(selected_members)
+                    if recipient_option ==
+                       "Send to specific people"
+                    else
+                    len(
+                        master_df[
+                            (master_df["STATUS"]
+                             .astype(str)
+                             .str.upper() == "ALIVE")
+                            &
+                            (master_df["EMAIL_ID"]
+                             .astype(str)
+                             .str.strip() != "")
+                        ]
+                    )
+                )
+                
                 # =====================================
                 # EMAIL SUBJECT
                 # =====================================
@@ -2619,7 +2729,7 @@ if py_patterns:
 
                         <br>
 
-                        Family Relationship System
+                        Family Relationships System
 
                     </h3>
 
@@ -2640,9 +2750,44 @@ if py_patterns:
                         html,
                         attachment_path
                     )
+                    if count>0:                     
+                        attachment_url = (
+                                upload_event_invitation_to_drive(
+                                    event_photo,
+                                    org_aadhaar,
+                                    event_name,
+                                    event_date
+                                )
+                            )
+                        event_row = [
 
+                            event_name,                                   # EVENT_NAME
+
+                            event_desc,                                   # EVENT_DESCRIPTION
+
+                            event_date.strftime("%d-%b-%Y"),              # EVENT_DATE
+
+                            org_aadhaar,                                  # ORGANIZER_AADHAAR
+
+                            st.session_state.org_name,                    # ORGANIZER_NAME
+
+                            st.session_state.organizer_mobile,            # ORGANIZER_MOBILE
+
+                            recipient_option,                             # INVITATION_TYPE
+
+                            total_recipients,                             # TOTAL_RECIPIENTS
+
+                            attachment_url,                               # ATTACHMENT_URL
+
+                            created_ts                                    # CREATED_TS
+                        ]                        
+                        event_sheet.append_row(
+                            event_row,
+                            value_input_option="USER_ENTERED"
+                        )
+                    
                     st.success(
-                        f"{count} invitations sent successfully"
+                        f"{count} invitation(s) sent successfully"
                     )
 
                 # =====================================
@@ -2680,9 +2825,45 @@ if py_patterns:
                                     f"{email}: {e}"
                                 )
 
+                    if sent_count>0:                     
+                        attachment_url = (
+                                upload_event_invitation_to_drive(
+                                    event_photo,
+                                    org_aadhaar,
+                                    event_name,
+                                    event_date
+                                )
+                            )
+                        event_row = [
+
+                            event_name,                                   # EVENT_NAME
+
+                            event_desc,                                   # EVENT_DESCRIPTION
+
+                            event_date.strftime("%d-%b-%Y"),              # EVENT_DATE
+
+                            org_aadhaar,                                  # ORGANIZER_AADHAAR
+
+                            st.session_state.org_name,                    # ORGANIZER_NAME
+
+                            st.session_state.organizer_mobile,            # ORGANIZER_MOBILE
+
+                            recipient_option,                             # INVITATION_TYPE
+
+                            total_recipients,                             # TOTAL_RECIPIENTS
+
+                            attachment_url,                               # ATTACHMENT_URL
+
+                            created_ts                                    # CREATED_TS
+                        ]                        
+                        event_sheet.append_row(
+                            event_row,
+                            value_input_option="USER_ENTERED"
+                        )
+                    
                     st.success(
-                        f"{sent_count} invitations sent successfully"
-                    )
+                        f"{sent_count} invitation(s) sent successfully"
+                    )                    
 if gs_patterns:
     # ---------- LOAD ----------
     @st.cache_data
