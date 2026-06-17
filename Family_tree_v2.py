@@ -2459,6 +2459,11 @@ if py_patterns:
                         ""
                     )
                 ).strip().upper()
+                
+                st.session_state.org_name = row[
+                    "MEMBER_NAME"
+                ]
+                
 
                 if status != "ALIVE":
 
@@ -2471,10 +2476,6 @@ if py_patterns:
                     st.stop()
 
                 st.session_state.org_verified = True
-
-                st.session_state.org_name = row[
-                    "MEMBER_NAME"
-                ]
 
                 st.session_state.organizer_mobile = str(
                     row.get(
