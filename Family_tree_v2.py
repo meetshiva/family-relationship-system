@@ -2453,39 +2453,22 @@ if py_patterns:
 
                 row = member.iloc[0]
 
-                status = str(
+                st.session_state.org_verified = True
+
+                st.session_state.org_name = row[
+                    "MEMBER_NAME"
+                ]
+
+                st.session_state.organizer_mobile = str(
                     row.get(
-                        "STATUS",
+                        "PH_NO",
                         ""
                     )
-                ).strip().upper()
+                )
 
-                if status != "ALIVE":
-
-                    st.session_state.org_verified = False
-
-                    st.error(
-                        f"{row['MEMBER_NAME']} is marked as Expired."
-                    )
-
-                else:
-
-                    st.session_state.org_verified = True
-
-                    st.session_state.org_name = row[
-                        "MEMBER_NAME"
-                    ]
-
-                    st.session_state.organizer_mobile = str(
-                        row.get(
-                            "PH_NO",
-                            ""
-                        )
-                    )
-
-                    st.success(
-                        f"Good day! {row['MEMBER_NAME']}"
-                    )
+                st.success(
+                    f"Good day! {row['MEMBER_NAME']}"
+                )
 
         # =================================================
         # EVENT DETAILS
