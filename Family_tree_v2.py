@@ -2453,6 +2453,23 @@ if py_patterns:
 
                 row = member.iloc[0]
 
+                status = str(
+                    row.get(
+                        "STATUS",
+                        ""
+                    )
+                ).strip().upper()
+
+                if status != "ALIVE":
+
+                    st.error(
+                        "Organizer must be ALIVE."
+                    )
+
+                    st.session_state.org_verified = False
+
+                    st.stop()
+
                 st.session_state.org_verified = True
 
                 st.session_state.org_name = row[
