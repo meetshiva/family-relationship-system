@@ -1326,7 +1326,7 @@ if py_patterns:
             # Large age gap → Grand Son / Grand Father
             return "Grand Father" if is_source_younger(source, target) else "Grand Son"
             
-                # ---------- S(M).S(M).S(M) ----------
+        # ---------- S(M).S(M).S(M) ----------
         if chain == "S(M).S(M).D(F)":
 
             # Same parent + close age → Brother
@@ -1336,6 +1336,15 @@ if py_patterns:
             # Large age gap → Grand Daughter / Grand Father
             return "Grand Father" if is_source_younger(source, target) else "Grand Daughter"
 
+        # Sister and Maternal Grand mother CASE
+        if chain == "D(F).D(F).D(F)":
+
+            # Same parent + close age → Brother
+            if src_parent and src_parent == tgt_parent and age_gap <= 20:
+                return "Sister"
+            else:
+                return "Grand Daughter" if is_source_younger(source, target) else "Maternal Grand Mother"
+            
         # DAUGHTER CASE
         if chain in ["D(F).D(F)", "D(F).W(F)", "D(F).R(F)"]:
             return "Daughter" if is_source_younger(source, target) else "Mother"
@@ -1350,53 +1359,54 @@ if py_patterns:
     # ---------- MAIN ----------
     # ---------- FULL TEST ----------
     TEST_PIN = "417655"
+    
+    if local_dev:
+        # =====================================================
+        # RUN TEST BUTTON
+        # =====================================================
 
-    # =====================================================
-    # RUN TEST BUTTON
-    # =====================================================
+        with b4:
+            if st.button("🧪 Run Full Relationship Test"):
+                st.session_state.show_test_pin = True
+        # =====================================================
+        # SHOW PIN SECTION
+        # =====================================================
 
-    with b4:
-        if st.button("🧪 Run Full Relationship Test"):
-            st.session_state.show_test_pin = True
-    # =====================================================
-    # SHOW PIN SECTION
-    # =====================================================
+        if st.session_state.get("show_test_pin", False):
 
-    if st.session_state.get("show_test_pin", False):
+            entered_pin = st.text_input(
+                "Enter Test Execution PIN",
+                type="password",
+                key="test_pin"
+            )
 
-        entered_pin = st.text_input(
-            "Enter Test Execution PIN",
-            type="password",
-            key="test_pin"
-        )
+            c1, c2 = st.columns(2)
 
-        c1, c2 = st.columns(2)
+            # ---------- VERIFY ----------
+            with c1:
 
-        # ---------- VERIFY ----------
-        with c1:
+                if st.button("✅ Verify & Run Test"):
 
-            if st.button("✅ Verify & Run Test"):
+                    if entered_pin == TEST_PIN:
 
-                if entered_pin == TEST_PIN:
+                        st.success("PIN verified successfully")
 
-                    st.success("PIN verified successfully")
+                        run_relationship_test()
 
-                    run_relationship_test()
+                        st.session_state.show_test_pin = False
+
+                    else:
+
+                        st.error("Invalid PIN")
+
+            # ---------- CANCEL ----------
+            with c2:
+
+                if st.button("❌ Cancel Test"):
 
                     st.session_state.show_test_pin = False
 
-                else:
-
-                    st.error("Invalid PIN")
-
-        # ---------- CANCEL ----------
-        with c2:
-
-            if st.button("❌ Cancel Test"):
-
-                st.session_state.show_test_pin = False
-
-                st.rerun()
+                    st.rerun()
             
     debug_mode = st.checkbox("Enable Debug Logs", value=False)
     st.session_state.debug = debug_mode
