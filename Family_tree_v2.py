@@ -1366,7 +1366,7 @@ if py_patterns:
         # =====================================================
 
         with b4:
-            if st.button("🧪 Run Full Relationship Test"):
+            if st.button("🧪 Run Full Relationship Test(For Admin only)"):
                 st.session_state.show_test_pin = True
         # =====================================================
         # SHOW PIN SECTION
@@ -1408,8 +1408,9 @@ if py_patterns:
 
                     st.rerun()
             
-    debug_mode = st.checkbox("Enable Debug Logs", value=False)
-    st.session_state.debug = debug_mode
+    if local_dev:
+        debug_mode = st.checkbox("Enable Debug Logs", value=False)
+        st.session_state.debug = debug_mode
 
     if show_greetings_flag:
         # =====================================================
